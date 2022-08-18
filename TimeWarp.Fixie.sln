@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{C614
 		publish.ps1 = publish.ps1
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimeWarp.Fixie.Tests", "tests\TimeWarp.Fixie.Tests\TimeWarp.Fixie.Tests.csproj", "{E9011CA3-F450-4E29-B0C6-FEE698AE3AFA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{D79004D2-F89A-4633-9F22-0A28FC79DEEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D79004D2-F89A-4633-9F22-0A28FC79DEEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D79004D2-F89A-4633-9F22-0A28FC79DEEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9011CA3-F450-4E29-B0C6-FEE698AE3AFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9011CA3-F450-4E29-B0C6-FEE698AE3AFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9011CA3-F450-4E29-B0C6-FEE698AE3AFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9011CA3-F450-4E29-B0C6-FEE698AE3AFA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

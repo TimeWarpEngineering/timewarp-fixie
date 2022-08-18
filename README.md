@@ -35,6 +35,65 @@ You can see the latest NuGet packages from the official [TimeWarp NuGet page](ht
 dotnet add package TimeWarp.Fixie
 ```
 
+## Usage
+
+Inside your fixie project create a class that inherits from `Fixie.Conventions.TestConvention`
+
+```csharp
+class TestProject : TimeWarp.Fixie.TestingConvention { }
+```
+This will then use the TimeWarp.Fixie convention.
+
+### How to filter tests by Name
+
+From fixie [docs](https://github.com/fixie/fixie/wiki/Command-Line-Arguments#filtering-with---tests) 
+
+The optional argument `--tests` (abbreviated `-t`) lets you specify which tests to run.
+
+A full test name match will run that single test:
+
+```console
+dotnet fixie MyTestProject --tests Full.Namespace.MyTestClass.MyTestMethod
+```
+
+To avoid having to type the full namespace or method name, there is an implicit wildcard at the start and end of the pattern. Here we run an entire test class:
+
+```console
+dotnet fixie MyTestProject --tests MyTestClass
+```
+There is an implicit lowercase letter wildcard, whenever a capital letter is followed by a non-lowercase character. In other words, you can type "MTC" to match "MyTestClass". Here we run a select few related tests within that class:
+
+```console
+dotnet fixie MyTestProject --tests MTC.ShouldValidateThat
+```
+
+Although unnecessary in most realistic cases, an explicit `*` wildcard will match any sequence of zero or more characters:
+
+```console
+dotnet fixie MyTestProject --tests MTC.*Validate
+```
+
+When all tests are run by omitting the `--tests` argument, passing tests are omitted for brevity. However, because a `--tests` pattern may in fact be more inclusive than the developer intended, the console output will include *passing* test names in addition to other test results as feedback whenever this argument is used.
+
+### How to filter tests by Tags
+
+If you want to only run tests with a given tag/s you can do this by passing in the `--Tag` parameter after `--`.
+If you want to run more than one Tag pass the parameter multiple times.
+
+Examples:
+
+
+```console
+dotnet fixie --no-build -- --Tag Fast --Tag Smoke
+```
+
+
+```console
+dotnet fixie -- --Tag Smoke
+```
+
+
+
 ## Unlicense
 
 [![License](https://img.shields.io/github/license/TimeWarpEngineering/timewarp-fixie?logo=github)](https://unlicense.org)
@@ -60,9 +119,11 @@ https://github.com/fixie/fixie
 
 ```PowerShell
 dotnet new sln
-dotnet new razorclasslib -n timewarp-fixie
+dotnet new classlib -n timewarp-fixie
+dotnet new classlib -n TimeWarp.Fixie.Tests
 dotnet sln add .\source\timewarp-fixie\timewarp-fixie.csproj
 dotnet new tool-manifest
 dotnet tool install dotnet-cleanup
+dotnet tool install Fixie.Console
 dotnet cleanup -y
 ```
