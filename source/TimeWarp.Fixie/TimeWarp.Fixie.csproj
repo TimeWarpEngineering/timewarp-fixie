@@ -1,10 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
     <IsTrimmable>true</IsTrimmable>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>TimeWarp.Fixie</RootNamespace>
     <Authors>Steven T. Cramer</Authors>
     <Company>TimeWarp Enterprises</Company>
@@ -17,7 +14,7 @@
     <PackageTags>timewarp; fixie; testing; convention</PackageTags>
     <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
     <PackageIcon>Logo.png</PackageIcon>
-    <Version>1.0.0-alpha.0</Version>
+    <Version>1.0.0-alpha.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,4 +27,12 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fixie" />
+    <PackageReference Include="Fixie.TestAdapter" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Scrutor" />
+  </ItemGroup>
+
 </Project>
