@@ -7,6 +7,12 @@
       "commands": [
         "cleanup"
       ]
+    },
+    "fixie.console": {
+      "version": "3.2.0",
+      "commands": [
+        "fixie"
+      ]
     }
   }
 }
