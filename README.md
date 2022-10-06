@@ -21,21 +21,38 @@ The TimeWarp Fixie testing convention.
 
 If you like or are using this project please give it a star. Thank you!
 
-## Usage
-
-
-
 ## Installation
 
 You can see the latest NuGet packages from the official [TimeWarp NuGet page](https://www.nuget.org/profiles/TimeWarp.Enterprises).
 
 * [timewarp-fixie](https://www.nuget.org/packages/TimeWarp.Fixie/) [![nuget](https://img.shields.io/nuget/v/TimeWarp.Fixie?logo=nuget)](https://www.nuget.org/packages/TimeWarp.Fixie/)
 
+## Usage
+
+Create a new test project.
+
 ```console
-dotnet add package TimeWarp.Fixie
+dotnet new classlib -n MyProject.Tests
 ```
 
-## Usage
+Add Nugets to the project 
+
+```console
+dotnet add package TimeWarp.Fixie
+dotnet add package Fixie.TestAdapter --version 3.2.0
+```
+
+Create a dotnet tool manifest.
+
+```console
+dotnet new tool-manifest
+```
+
+Add Fixie.Console to the manifest
+
+```console
+dotnet tool install Fixie.Console
+```
 
 Inside your fixie project create a class that inherits from `Fixie.Conventions.TestConvention`
 
@@ -43,6 +60,48 @@ Inside your fixie project create a class that inherits from `Fixie.Conventions.T
 class TestProject : TimeWarp.Fixie.TestingConvention { }
 ```
 This will then use the TimeWarp.Fixie convention.
+
+Create a sample test.
+First we will add FluentAssertions you could use basic Asserts or any other assertion library.
+
+```csharp
+dotnet add package FluentAssertions --version 6.7.0
+```
+
+Create a sample test case.
+
+```csharp
+namespace ConventionTest_;
+
+using FluentAssertions;
+using TimeWarp.Fixie;
+
+[TestTag(TestTags.Fast)]
+public class SimpleNoApplicationTest_Should_
+{
+  public static void AlwaysPass() => true.Should().BeTrue();
+
+  [Skip("Demonstrates skip attribute")]
+  public static void SkipExample() => true.Should().BeFalse();
+
+  [TestTag(TestTags.Fast)]
+  public static void TagExample() => true.Should().BeTrue();
+
+  [Input(5, 3, 2)]
+  [Input(8, 5, 3)]
+  public static void Subtract(int aX, int aY, int aExpectedDifference)
+  {
+    int result = aX - aY;
+    result.Should().Be(aExpectedDifference);
+  }
+}
+```
+
+Execute the tests:
+
+```console
+dotnet fixie
+```
 
 ### How to filter tests by Name
 
