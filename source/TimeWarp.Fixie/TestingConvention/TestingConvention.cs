@@ -16,10 +16,17 @@ public class TestingConvention : ITestProject
   internal const string SetupLifecycleMethodName = "Setup";
   internal const string CleanupLifecycleMethodName = "Cleanup";
 
+  private readonly ConfigureAdditionalServicesCallback? ConfigureAdditionalServicesCallback;
+
+  public TestingConvention(ConfigureAdditionalServicesCallback? configureAdditionalServicesCallback = null)
+  {
+    ConfigureAdditionalServicesCallback = configureAdditionalServicesCallback;
+  }
+
   public void Configure(TestConfiguration aTestConfiguration, TestEnvironment aTestEnvironment)
   {
     var testDiscovery = new TestDiscovery(aTestEnvironment.CustomArguments);
-    var testExecution = new TestExecution(aTestEnvironment.CustomArguments);
+    var testExecution = new TestExecution(aTestEnvironment.CustomArguments, ConfigureAdditionalServicesCallback);
 
     aTestConfiguration.Conventions.Add(testDiscovery, testExecution);
   }

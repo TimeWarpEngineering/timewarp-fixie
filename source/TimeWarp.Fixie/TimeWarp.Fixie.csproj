@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <IsTrimmable>true</IsTrimmable>
+    <IsPackable>true</IsPackable>
     <RootNamespace>TimeWarp.Fixie</RootNamespace>
     <Authors>Steven T. Cramer</Authors>
     <Company>TimeWarp Enterprises</Company>

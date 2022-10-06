@@ -9,6 +9,8 @@ using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 
+public delegate void ConfigureAdditionalServicesCallback(ServiceCollection serviceCollection);
+
 /// <summary>
 /// Fixie allows for the configuration of a custom test execution process. This is our base implementation.
 /// </summary>
@@ -20,9 +22,11 @@ public class TestExecution : IExecution
 {
   private readonly ServiceProvider ServiceProvider;
   private readonly IReadOnlyList<string> CustomArguments;
+  private readonly ConfigureAdditionalServicesCallback? ConfigureAdditionalServicesCallback;
 
-  public TestExecution(IReadOnlyList<string> aCustomArguments)
+  public TestExecution(IReadOnlyList<string> aCustomArguments, ConfigureAdditionalServicesCallback? configureAdditionalServicesCallback = null)
   {
+    ConfigureAdditionalServicesCallback = configureAdditionalServicesCallback;
     var testServices = new ServiceCollection();
     ConfigureTestServices(testServices);
     ServiceProvider = testServices.BuildServiceProvider();
@@ -90,7 +94,7 @@ public class TestExecution : IExecution
   public virtual void ConfigureTestServices(ServiceCollection aServiceCollection)
   {
     Console.WriteLine($"==== {nameof(ConfigureTestServices)} ====");
-    ConfigureApplications(aServiceCollection);
+    ConfigureAdditionalServices(aServiceCollection);
 
     // Configure any test class dependencies here.
     aServiceCollection.AddSingleton(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
@@ -102,15 +106,9 @@ public class TestExecution : IExecution
   /// Add the <see cref="TestServerApplication{TStartup}">applications</see> to be running as Singletons to the ServiceCollection
   /// </summary>
   /// <param name="aServiceCollection"></param>
-  public virtual void ConfigureApplications(ServiceCollection aServiceCollection)
+  public virtual void ConfigureAdditionalServices(ServiceCollection aServiceCollection)
   {
-    Console.WriteLine($"==== {nameof(ConfigureApplications)} ====");
-    //aServiceCollection
-      //.AddSingleton<WebTestServerApplication>()
-      //.AddSingleton<ApiTestServerApplication>()
-      //.AddSingleton<YarpTestServerApplication>();
-
-    ; // Add other applications you want to run here
+    ConfigureAdditionalServicesCallback?.Invoke(aServiceCollection);
   }
 
   /// <summary>
