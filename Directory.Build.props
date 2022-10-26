@@ -1,9 +1,9 @@
 <Project>
   <PropertyGroup>
-    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <EnablePreviewFeatures>false</EnablePreviewFeatures>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>latest</LangVersion>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <Nullable>enable</Nullable>
     <TargetFramework>net6.0</TargetFramework>

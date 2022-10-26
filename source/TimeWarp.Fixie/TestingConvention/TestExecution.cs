@@ -46,19 +46,19 @@ public class TestExecution : IExecution
   /// </remarks>
   public async Task Run(TestSuite aTestSuite)
   {
-    IServiceScopeFactory serviceScopeFactory = ServiceProvider.GetService<IServiceScopeFactory>();
+    IServiceScopeFactory serviceScopeFactory = ServiceProvider.GetService<IServiceScopeFactory>()!;
     foreach (TestClass testClass in aTestSuite.TestClasses)
     {
       Console.WriteLine($"==== Executing Cases for the class {testClass.Type.FullName} ====");
       foreach (Test test in testClass.Tests)
       {
-        if (test.Has<SkipAttribute>(out SkipAttribute skip))
+        if (test.Has(out SkipAttribute? skip))
         {
           await test.Skip(skip.Reason);
           continue;
         }
         using IServiceScope serviceScope = serviceScopeFactory.CreateScope();
-        object instance = serviceScope.ServiceProvider.GetService(testClass.Type);
+        object instance = serviceScope.ServiceProvider.GetService(testClass.Type)!;
 
 
         if (test.HasParameters)
@@ -82,9 +82,8 @@ public class TestExecution : IExecution
         }
       }
     }
-    //await Task.Delay(TimeSpan.FromMinutes(5));// This will give me time to see if the webApplication responds
 
-    await (serviceScopeFactory as IAsyncDisposable).DisposeAsync();
+    await (serviceScopeFactory as IAsyncDisposable)!.DisposeAsync();
   }
 
   /// <summary>
@@ -133,8 +132,8 @@ public class TestExecution : IExecution
   {
     if (aInstance is null) { throw new ArgumentNullException(nameof(aInstance)); }
 
-    MethodInfo methodInfo = aTestClass.Type.GetMethod(aMethodName);
-    if (methodInfo != null)
+    MethodInfo? methodInfo = aTestClass.Type.GetMethod(aMethodName);
+    if (methodInfo is not null)
     {
       Console.WriteLine($"==== Run Lifecycle method: {aMethodName} ====");
       await methodInfo.Call(aInstance);
