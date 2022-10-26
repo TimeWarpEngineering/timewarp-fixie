@@ -8,7 +8,7 @@
     <Company>TimeWarp Enterprises</Company>
     <Product>TimeWarp.Fixie</Product>
     <Description>The TimeWarp Fixie testing convention</Description>
-    <PackageProjectUrl>https://github.com/TimeWarpEngineering/timewarp-fixe</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/TimeWarpEngineering/timewarp-fixie</PackageProjectUrl>
     <RepositoryUrl>https://github.com/TimeWarpEngineering/timewarp-fixie.git</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
