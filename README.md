@@ -15,7 +15,16 @@
 
 ![TimeWarp Logo](assets/Logo.png)
 
-The TimeWarp Fixie testing convention.
+The TimeWarp testing convention for the excellent test framework [Fixie](https://github.com/fixie/fixie/wiki).
+
+## Features
+
+* No need to mark tests. Public methods are test cases by default.
+* Skip - can mark tests to be skipped.
+* Tags - Add tags to your tests and filter runs based on the tag.
+* Inputs - Allow for parameterized tests. (similar to how "Theory" works in xUnit)
+* Lifecycle Methods -  if the `Setup` or `Cleanup` methods are found on the test class they will be executed appropriately.
+* NotTest - Can mark methods with `NotTest` attribute if they are not tests.
 
 ## Give a Star! :star:
 
