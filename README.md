@@ -15,16 +15,21 @@
 
 ![TimeWarp Logo](assets/Logo.png)
 
-The TimeWarp testing convention for the excellent test framework [Fixie](https://github.com/fixie/fixie/wiki).
+[Fixie](https://github.com/fixie/fixie/wiki) is a .NET test framework similar to NUnit and xUnit, but with an emphasis on low-ceremony defaults and flexible customizations.
 
-## Features
+TimeWarp-fixie is a project that uses conventions to simplify using Fixie even further.
 
-* No need to mark tests. Public methods are test cases by default.
+## Feature overview
+
+* Dependency Injection support for test cases.
+* No need to decorate test methods with [Test] attributes. Public methods are test cases by default.
 * Skip - can mark tests to be skipped.
 * Tags - Add tags to your tests and filter runs based on the tag.
 * Inputs - Allow for parameterized tests. (similar to how "Theory" works in xUnit)
 * Lifecycle Methods -  if the `Setup` or `Cleanup` methods are found on the test class they will be executed appropriately.
 * NotTest - Can mark methods with `NotTest` attribute if they are not tests.
+* Filter tests by name
+* Filter tests by Tags
 
 ## Give a Star! :star:
 
@@ -112,6 +117,98 @@ Execute the tests:
 dotnet fixie
 ```
 
+## Features
+
+### Dependency Injection
+
+Tests are instantiated from the dependency injection container set up for tests. So you can use the same pattern for testing as we use for production apps.
+
+### No need to decorate test methods with [Test] attributes. Public methods are test cases by convention.
+
+```cs
+// Xunit style
+[Test] // <==== Not needed with TimeWarp Fixie Convention
+public void SomeTest()
+{
+  Assert.Fail();
+}
+```
+
+```cs
+// TimeWarp Fixie Convention all public methods are tests 
+public void SomeTest()
+{
+  Assert.Fail();
+}
+```
+
+### Skip - can mark tests to be skipped
+
+```cs
+  [Skip("Reason for skipping")]
+  public static void SkipExample() => true.Should().BeFalse();
+```
+
+### Tags
+
+You can add tags to any of your tests.  We include some we use in the TestTags static class but they are just strings so you can add whatever you like.
+
+```cs
+  [TestTag(TestTags.Fast)]
+  [TestTag("Bug123")]
+  public static void TagExample() => true.Should().BeTrue();
+
+```
+
+### Parameterized tests
+
+Similar to how xUnit uses `[Theory]` you can run a test for each set of parameters.
+
+```cs
+  [Input(5, 3, 2)]
+  [Input(8, 5, 3)]
+  public static void Subtract(int aX, int aY, int aExpectedDifference)
+  {
+    int result = aX - aY;
+    result.Should().Be(aExpectedDifference);
+  }
+```
+
+### Lifecycle Methods
+
+If the `Setup` or `Cleanup` methods are found on the test class they will be executed appropriately for each test.
+
+```cs
+public class LifecycleExamples
+{
+  public static void AlwaysPass() => true.Should().BeTrue();
+
+  [Input(5, 3, 2)]
+  [Input(8, 5, 3)]
+  public static void Subtract(int aX, int aY, int aExpectedDifference)
+  {
+    // Will run lifecycles around each Input
+    int result = aX - aY;
+    result.Should().Be(aExpectedDifference);
+  }
+
+  public static void Setup() => Console.WriteLine("Sample Setup");
+  public static void Cleanup() => Console.WriteLine("Sample Cleanup");
+}
+```
+
+### NotTest
+
+If you have a class that needs to be public that does not contain tests you can mark it as such with the `[NotTest]` attribute.
+
+An example where we use this is in the declaration of the NotTest Attribute itself
+
+```cs
+[NotTest]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+public class NotTest : Attribute { }
+```
+
 ### How to filter tests by Name
 
 From fixie [docs](https://github.com/fixie/fixie/wiki/Command-Line-Arguments#filtering-with---tests) 
@@ -150,17 +247,13 @@ If you want to run more than one Tag pass the parameter multiple times.
 
 Examples:
 
-
 ```console
 dotnet fixie --no-build -- --Tag Fast --Tag Smoke
 ```
 
-
 ```console
 dotnet fixie -- --Tag Smoke
 ```
-
-
 
 ## Unlicense
 
