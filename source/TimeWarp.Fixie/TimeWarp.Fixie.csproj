@@ -26,7 +26,6 @@
   <ItemGroup>
     <PackageReference Include="Fixie" />
     <PackageReference Include="Fixie.TestAdapter" />
-    <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Scrutor" />
   </ItemGroup>
