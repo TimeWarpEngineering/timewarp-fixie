@@ -53,7 +53,7 @@ Add Nugets to the project
 
 ```console
 dotnet add package TimeWarp.Fixie
-dotnet add package Fixie.TestAdapter --version 3.2.0
+dotnet add package Fixie.TestAdapter
 ```
 
 Create a dotnet tool manifest.
@@ -71,7 +71,7 @@ dotnet tool install Fixie.Console
 Inside your fixie project create a class that inherits from `Fixie.Conventions.TestConvention`
 
 ```csharp
-class TestProject : TimeWarp.Fixie.TestingConvention { }
+class TestingConvention : TimeWarp.Fixie.TestingConvention { }
 ```
 This will then use the TimeWarp.Fixie convention.
 
@@ -79,10 +79,10 @@ Create a sample test.
 First we will add FluentAssertions you could use basic Asserts or any other assertion library.
 
 ```csharp
-dotnet add package FluentAssertions --version 6.7.0
+dotnet add package FluentAssertions
 ```
 
-Create a sample test case.
+Create a sample test class named `ConventionTests.cs`.
 
 ```csharp
 namespace ConventionTest_;
