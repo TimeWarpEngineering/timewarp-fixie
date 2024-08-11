@@ -15,7 +15,6 @@
     <PackageTags>timewarp; fixie; testing; convention</PackageTags>
     <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
     <PackageIcon>Logo.png</PackageIcon>
-    <Version>1.0.2+7.0.100</Version>
   </PropertyGroup>
 
   <ItemGroup>
