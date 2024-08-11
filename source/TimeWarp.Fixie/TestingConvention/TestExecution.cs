@@ -15,10 +15,10 @@ public delegate void ConfigureAdditionalServicesCallback(ServiceCollection servi
 /// Fixie allows for the configuration of a custom test execution process. This is our base implementation.
 /// </summary>
 /// <remarks>This convention looks for all classes that are public and do not have the <see cref="NotTest"/> attribute
-/// And all methods within those classes that are not named with the value in <see cref="SetupMethodName"/> are tests
+/// And all methods within those classes that are not named with the value in <see cref="TestingConvention.SetupLifecycleMethodName"/> are tests
 /// </remarks>
 [NotTest]
-public class TestExecution : IExecution
+public sealed class TestExecution : IExecution
 {
   private readonly ServiceProvider ServiceProvider;
   private readonly IReadOnlyList<string> CustomArguments;
@@ -36,7 +36,7 @@ public class TestExecution : IExecution
   /// <summary>
   /// This is required implementation of the IExecution interface
   /// </summary>
-  /// <param name="aTestSuite"></param>
+  /// <param name="testSuite"></param>
   /// <remarks>
   /// Each test is run in a new <see cref="IServiceScope"/> created by the registered <see cref="IServiceScopeFactory"/>
   /// For each test/method the following is executed:
@@ -44,10 +44,10 @@ public class TestExecution : IExecution
   /// <see cref="Run(TestSuite)"/>
   /// <see cref="Cleanup(object, TestClass)"/>
   /// </remarks>
-  public async Task Run(TestSuite aTestSuite)
+  public async Task Run(TestSuite testSuite)
   {
     IServiceScopeFactory serviceScopeFactory = ServiceProvider.GetService<IServiceScopeFactory>()!;
-    foreach (TestClass testClass in aTestSuite.TestClasses)
+    foreach (TestClass testClass in testSuite.TestClasses)
     {
       Console.WriteLine($"==== Executing Cases for the class {testClass.Type.FullName} ====");
       foreach (Test test in testClass.Tests)
@@ -89,25 +89,25 @@ public class TestExecution : IExecution
   /// <summary>
   /// Registers all the items in the <see cref="ServiceCollection"/>
   /// </summary>
-  /// <param name="aServiceCollection"></param>
-  public virtual void ConfigureTestServices(ServiceCollection aServiceCollection)
+  /// <param name="serviceCollection"></param>
+  public void ConfigureTestServices(ServiceCollection serviceCollection)
   {
     Console.WriteLine($"==== {nameof(ConfigureTestServices)} ====");
-    ConfigureAdditionalServices(aServiceCollection);
+    ConfigureAdditionalServices(serviceCollection);
 
     // Configure any test class dependencies here.
-    aServiceCollection.AddSingleton(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+    serviceCollection.AddSingleton(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
-    RegisterTests(aServiceCollection);
+    RegisterTests(serviceCollection);
   }
 
   /// <summary>
   /// Add the <see cref="TestServerApplication{TStartup}">applications</see> to be running as Singletons to the ServiceCollection
   /// </summary>
-  /// <param name="aServiceCollection"></param>
-  public virtual void ConfigureAdditionalServices(ServiceCollection aServiceCollection)
+  /// <param name="serviceCollection"></param>
+  public void ConfigureAdditionalServices(ServiceCollection serviceCollection)
   {
-    ConfigureAdditionalServicesCallback?.Invoke(aServiceCollection);
+    ConfigureAdditionalServicesCallback?.Invoke(serviceCollection);
   }
 
   /// <summary>
@@ -115,28 +115,28 @@ public class TestExecution : IExecution
   /// entry assembly.
   /// </summary>
   /// <remarks>This Filter uses the same one used in <see cref="TestDiscovery"/> </remarks>
-  /// <param name="aServiceCollection"></param>
-  private static void RegisterTests(ServiceCollection aServiceCollection)
+  /// <param name="serviceCollection"></param>
+  private static void RegisterTests(IServiceCollection serviceCollection)
   {
-    aServiceCollection.Scan
+    serviceCollection.Scan
     (
-      aTypeSourceSelector => aTypeSourceSelector
+      typeSourceSelector => typeSourceSelector
         .FromEntryAssembly()
-        .AddClasses(action: (aClasses) => aClasses.Where(TestDiscovery.TestClassFilter()))
+        .AddClasses(action: (classes) => classes.Where(TestDiscovery.TestClassFilter()))
         .AsSelf()
         .WithScopedLifetime()
     );
   }
 
-  private static async Task TryLifecycleMethod(object aInstance, TestClass aTestClass, string aMethodName)
+  private static async Task TryLifecycleMethod(object instance, TestClass testClass, string methodName)
   {
-    if (aInstance is null) { throw new ArgumentNullException(nameof(aInstance)); }
+    if (instance is null) { throw new ArgumentNullException(nameof(instance)); }
 
-    MethodInfo? methodInfo = aTestClass.Type.GetMethod(aMethodName);
+    MethodInfo? methodInfo = testClass.Type.GetMethod(methodName);
     if (methodInfo is not null)
     {
-      Console.WriteLine($"==== Run Lifecycle method: {aMethodName} ====");
-      await methodInfo.Call(aInstance);
+      Console.WriteLine($"==== Run Lifecycle method: {methodName} ====");
+      await methodInfo.Call(instance);
     }
   }
 }

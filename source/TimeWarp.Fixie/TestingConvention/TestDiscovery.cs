@@ -10,54 +10,54 @@ using System.Reflection;
 /// Fixie allows for the configuration of a custom test discovery process. This is our implementation.
 /// </summary>
 /// <remarks>This convention looks for all classes that are public and do not have the <see cref="NotTest"/> attribute
-/// And all methods within those classes that are not named with the value in <see cref="SetupMethodName"/> are tests
+/// And all methods within those classes that are not named with the value in <see cref="TestingConvention.SetupLifecycleMethodName"/> are tests
 /// </remarks>
 [NotTest]
-public class TestDiscovery : IDiscovery
+public sealed class TestDiscovery : IDiscovery
 {
   private readonly IReadOnlyList<string> CustomArguments;
 
-  public TestDiscovery(IReadOnlyList<string> aCustomArguments)
+  public TestDiscovery(IReadOnlyList<string> customArguments)
   {
-    CustomArguments = aCustomArguments;
+    CustomArguments = customArguments;
   }
 
   /// <inheritdoc/>
-  public IEnumerable<Type> TestClasses(IEnumerable<Type> aConcreteClasses) =>
-    aConcreteClasses
+  public IEnumerable<Type> TestClasses(IEnumerable<Type> concreteClasses) =>
+    concreteClasses
       .Where(TestClassFilter())
       .Where(TagClassFilter());
 
   /// <inheritdoc/>
-  public IEnumerable<MethodInfo> TestMethods(IEnumerable<MethodInfo> aPublicMethods) =>
-    aPublicMethods
+  public IEnumerable<MethodInfo> TestMethods(IEnumerable<MethodInfo> publicMethods) =>
+    publicMethods
       .Where(TestMethodFilter())
       .Where(TagMethodFilter());
 
   internal static Func<Type, bool> TestClassFilter() =>
-    aType => aType.IsPublic && !aType.Has<NotTest>();
+    type => type.IsPublic && !type.Has<NotTest>();
 
   private Func<Type, bool> TagClassFilter() =>
-    aType =>
+    type =>
       CustomArguments.Count == 0 ||
-        aType
+        type
           .GetCustomAttributes<TestTagAttribute>()
-          .Select(aTestTagAttribute => aTestTagAttribute.Tag)
+          .Select(testTagAttribute => testTagAttribute.Tag)
           .Intersect(CustomArguments)
           .Any();
 
   private static Func<MethodInfo, bool> TestMethodFilter() =>
-    aMethodInfo =>
-      !aMethodInfo.IsSpecialName &&
-      aMethodInfo.Name != TestingConvention.SetupLifecycleMethodName &&
-      aMethodInfo.Name != TestingConvention.CleanupLifecycleMethodName;
+    methodInfo =>
+      !methodInfo.IsSpecialName &&
+      methodInfo.Name != TestingConvention.SetupLifecycleMethodName &&
+      methodInfo.Name != TestingConvention.CleanupLifecycleMethodName;
 
   private Func<MethodInfo, bool> TagMethodFilter() =>
-    aMethodInfo =>
+    methodInfo =>
       CustomArguments.Count == 0 ||
-        aMethodInfo
+        methodInfo
           .GetCustomAttributes<TestTagAttribute>()
-          .Select(aTestTagAttribute => aTestTagAttribute.Tag)
+          .Select(testTagAttribute => testTagAttribute.Tag)
           .Intersect(CustomArguments)
           .Any();
 }

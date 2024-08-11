@@ -15,7 +15,7 @@
 
 ![TimeWarp Logo](assets/Logo.png)
 
-[Fixie](https://github.com/fixie/fixie/wiki) is a .NET test framework similar to NUnit and xUnit, but with an emphasis on low-ceremony defaults and flexible customizations.
+[Fixie](https://github.com/fixie/fixie/wiki) is a dotnet test framework similar to NUnit and xUnit, but with an emphasis on low-ceremony defaults and flexible customizations.
 
 TimeWarp-fixie is a project that uses conventions to simplify using Fixie even further.
 
@@ -43,46 +43,75 @@ You can see the latest NuGet packages from the official [TimeWarp NuGet page](ht
 
 ## Usage
 
-Create a new test project.
+### Creating a New Test Project
+
+Create a new test project:
 
 ```console
 dotnet new classlib -n MyProject.Tests
 ```
 
-Add Nugets to the project 
+Add NuGet packages to the project:
 
 ```console
 dotnet add package TimeWarp.Fixie
-dotnet add package Fixie.TestAdapter --version 3.2.0
+dotnet add package Fixie.TestAdapter
 ```
 
-Create a dotnet tool manifest.
+Create a dotnet tool manifest:
 
 ```console
 dotnet new tool-manifest
 ```
 
-Add Fixie.Console to the manifest
+Add Fixie.Console to the manifest:
 
 ```console
 dotnet tool install Fixie.Console
 ```
 
-Inside your fixie project create a class that inherits from `Fixie.Conventions.TestConvention`
+### Configuring Testing Convention
+
+Inside your Fixie project, create a class that inherits from `Fixie.Conventions.TestingConvention`:
 
 ```csharp
-class TestProject : TimeWarp.Fixie.TestingConvention { }
+class TestingConvention : TimeWarp.Fixie.TestingConvention { }
 ```
-This will then use the TimeWarp.Fixie convention.
 
-Create a sample test.
-First we will add FluentAssertions you could use basic Asserts or any other assertion library.
+This will use the `TimeWarp.Fixie` convention.
+
+### Configuring Services for the Execution Phase
+
+To customize the services used in the execution phase, inherit from `TestingConvention` and override the service configuration:
 
 ```csharp
-dotnet add package FluentAssertions --version 6.7.0
+namespace TimeWarp.Architecture.Testing;
+
+public class TimeWarpTestingConvention : TestingConvention
+{
+    public TimeWarpTestingConvention() : base(ConfigureAdditionalServicesCallback) { }
+
+    private static void ConfigureAdditionalServicesCallback(ServiceCollection serviceCollection)
+    {
+        Console.WriteLine("ConfigureAdditionalServices");
+        serviceCollection
+            .AddSingleton<WebTestServerApplication>()
+            .AddSingleton<ApiTestServerApplication>()
+            .AddSingleton<SpaTestApplication<YarpTestServerApplication, TimeWarp.Architecture.Yarp.Server.Program>>()
+            .AddSingleton<YarpTestServerApplication>();
+    }
+}
 ```
 
-Create a sample test case.
+### Creating a Sample Test
+
+First, add FluentAssertions (you could use basic Asserts or any other assertion library):
+
+```csharp
+dotnet add package FluentAssertions
+```
+
+Create a sample test class named `ConventionTests.cs`:
 
 ```csharp
 namespace ConventionTest_;
@@ -93,25 +122,25 @@ using TimeWarp.Fixie;
 [TestTag(TestTags.Fast)]
 public class SimpleNoApplicationTest_Should_
 {
-  public static void AlwaysPass() => true.Should().BeTrue();
+    public static void AlwaysPass() => true.Should().BeTrue();
 
-  [Skip("Demonstrates skip attribute")]
-  public static void SkipExample() => true.Should().BeFalse();
+    [Skip("Demonstrates skip attribute")]
+    public static void SkipExample() => true.Should().BeFalse();
 
-  [TestTag(TestTags.Fast)]
-  public static void TagExample() => true.Should().BeTrue();
+    [TestTag(TestTags.Fast)]
+    public static void TagExample() => true.Should().BeTrue();
 
-  [Input(5, 3, 2)]
-  [Input(8, 5, 3)]
-  public static void Subtract(int aX, int aY, int aExpectedDifference)
-  {
-    int result = aX - aY;
-    result.Should().Be(aExpectedDifference);
-  }
+    [Input(5, 3, 2)]
+    [Input(8, 5, 3)]
+    public static void Subtract(int aX, int aY, int aExpectedDifference)
+    {
+        int result = aX - aY;
+        result.Should().Be(aExpectedDifference);
+    }
 }
 ```
 
-Execute the tests:
+### Executing the Tests
 
 ```console
 dotnet fixie
@@ -121,170 +150,97 @@ dotnet fixie
 
 ### Dependency Injection
 
-Tests are instantiated from the dependency injection container set up for tests. So you can use the same pattern for testing as we use for production apps.
+Tests are instantiated from the dependency injection container set up for tests, so you can use the same pattern for testing as for production apps.
 
-### No need to decorate test methods with [Test] attributes. Public methods are test cases by convention.
+### No Need to Decorate Test Methods with [Test] Attributes
 
-```cs
+Public methods are test cases by convention:
+
+```csharp
 // Xunit style
 [Test] // <==== Not needed with TimeWarp Fixie Convention
 public void SomeTest()
 {
-  Assert.Fail();
+    Assert.Fail();
 }
 ```
 
-```cs
-// TimeWarp Fixie Convention all public methods are tests 
+```csharp
+// TimeWarp Fixie Convention: all public methods are tests 
 public void SomeTest()
 {
-  Assert.Fail();
+    Assert.Fail();
 }
 ```
 
-### Skip - can mark tests to be skipped
+### Skip - Mark Tests to Be Skipped
 
-```cs
-  [Skip("Reason for skipping")]
-  public static void SkipExample() => true.Should().BeFalse();
+```csharp
+[Skip("Reason for skipping")]
+public static void SkipExample() => true.Should().BeFalse();
 ```
 
 ### Tags
 
-You can add tags to any of your tests.  We include some we use in the TestTags static class but they are just strings so you can add whatever you like.
+You can add tags to any of your tests. We include some in the `TestTags` static class, but they are just strings, so you can add whatever you like:
 
-```cs
-  [TestTag(TestTags.Fast)]
-  [TestTag("Bug123")]
-  public static void TagExample() => true.Should().BeTrue();
-
+```csharp
+[TestTag(TestTags.Fast)]
+[TestTag("Bug123")]
+public static void TagExample() => true.Should().BeTrue();
 ```
 
-### Parameterized tests
+### Parameterized Tests
 
-Similar to how xUnit uses `[Theory]` you can run a test for each set of parameters.
+Similar to how xUnit uses `[Theory]`, you can run a test for each set of parameters:
 
-```cs
-  [Input(5, 3, 2)]
-  [Input(8, 5, 3)]
-  public static void Subtract(int aX, int aY, int aExpectedDifference)
-  {
+```csharp
+[Input(5, 3, 2)]
+[Input(8, 5, 3)]
+public static void Subtract(int aX, int aY, int aExpectedDifference)
+{
     int result = aX - aY;
     result.Should().Be(aExpectedDifference);
-  }
+}
 ```
 
 ### Lifecycle Methods
 
-If the `Setup` or `Cleanup` methods are found on the test class they will be executed appropriately for each test.
+If the `Setup` or `Cleanup` methods are found on the test class, they will be executed appropriately for each test:
 
-```cs
+```csharp
 public class LifecycleExamples
 {
-  public static void AlwaysPass() => true.Should().BeTrue();
+    public static void AlwaysPass() => true.Should().BeTrue();
 
-  [Input(5, 3, 2)]
-  [Input(8, 5, 3)]
-  public static void Subtract(int aX, int aY, int aExpectedDifference)
-  {
-    // Will run lifecycles around each Input
-    int result = aX - aY;
-    result.Should().Be(aExpectedDifference);
-  }
+    [Input(5, 3, 2)]
+    [Input(8, 5, 3)]
+    public static void Subtract(int aX, int aY, int aExpectedDifference)
+    {
+        // Will run lifecycles around each Input
+        int result = aX - aY;
+        result.Should().Be(aExpectedDifference);
+    }
 
-  public static void Setup() => Console.WriteLine("Sample Setup");
-  public static void Cleanup() => Console.WriteLine("Sample Cleanup");
+    public static void Setup() => Console.WriteLine("Sample Setup");
+    public static void Cleanup() => Console.WriteLine("Sample Cleanup");
 }
 ```
 
 ### NotTest
 
-If you have a class that needs to be public that does not contain tests you can mark it as such with the `[NotTest]` attribute.
+If you have a class that needs to be public but does not contain tests, you can mark it as such with the `[NotTest]` attribute. For example:
 
-An example where we use this is in the declaration of the NotTest Attribute itself
-
-```cs
+```csharp
 [NotTest]
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 public class NotTest : Attribute { }
 ```
 
-### How to filter tests by Name
+### Filtering Tests by Name
 
-From fixie [docs](https://github.com/fixie/fixie/wiki/Command-Line-Arguments#filtering-with---tests) 
+From Fixie's [docs](https://github.com/fixie/fixie/wiki/Command-Line-Arguments#filtering-with---tests):
 
 The optional argument `--tests` (abbreviated `-t`) lets you specify which tests to run.
 
-A full test name match will run that single test:
-
-```console
-dotnet fixie MyTestProject --tests Full.Namespace.MyTestClass.MyTestMethod
-```
-
-To avoid having to type the full namespace or method name, there is an implicit wildcard at the start and end of the pattern. Here we run an entire test class:
-
-```console
-dotnet fixie MyTestProject --tests MyTestClass
-```
-There is an implicit lowercase letter wildcard, whenever a capital letter is followed by a non-lowercase character. In other words, you can type "MTC" to match "MyTestClass". Here we run a select few related tests within that class:
-
-```console
-dotnet fixie MyTestProject --tests MTC.ShouldValidateThat
-```
-
-Although unnecessary in most realistic cases, an explicit `*` wildcard will match any sequence of zero or more characters:
-
-```console
-dotnet fixie MyTestProject --tests MTC.*Validate
-```
-
-When all tests are run by omitting the `--tests` argument, passing tests are omitted for brevity. However, because a `--tests` pattern may in fact be more inclusive than the developer intended, the console output will include *passing* test names in addition to other test results as feedback whenever this argument is used.
-
-### How to filter tests by Tags
-
-If you want to only run tests with a given tag/s you can do this by passing in the `--Tag` parameter after `--`.
-If you want to run more than one Tag pass the parameter multiple times.
-
-Examples:
-
-```console
-dotnet fixie --no-build -- --Tag Fast --Tag Smoke
-```
-
-```console
-dotnet fixie -- --Tag Smoke
-```
-
-## Unlicense
-
-[![License](https://img.shields.io/github/license/TimeWarpEngineering/timewarp-fixie?logo=github)](https://unlicense.org)
-
-## Contributing
-
-Time is of the essence.  Before developing a Pull Request I recommend opening a [discussion](https://github.com/TimeWarpEngineering/timewarp-fixie/discussions).
-
-Please feel free to make suggestions and help out with the [documentation](https://timewarpengineering.github.io/timewarp-fixie/).
-Please refer to [Markdown](http://daringfireball.net/projects/markdown/) for how to write markdown files.
-
-## Contact
-
-Sometimes the github notifications get lost in the shuffle.  If you file an [issue](https://github.com/TimeWarpEngineering/timewarp-fixie/issues) and don't get a response in a timely manner feel free to ping on our [Discord server](https://discord.gg/A55JARGKKP).
-
-[![Discord](https://img.shields.io/discord/715274085940199487?logo=discord)](https://discord.gg/7F4bS2T)
-
-## References
-
-https://github.com/fixie/fixie
-
-### Commands used
-
-```PowerShell
-dotnet new sln
-dotnet new classlib -n timewarp-fixie
-dotnet new classlib -n TimeWarp.Fixie.Tests
-dotnet sln add .\source\timewarp-fixie\timewarp-fixie.csproj
-dotnet new tool-manifest
-dotnet tool install dotnet-cleanup
-dotnet tool install Fixie.Console
-dotnet cleanup -y
-```
+A full test name match
