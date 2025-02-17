@@ -82,10 +82,10 @@ This will use the `TimeWarp.Fixie` convention.
 
 ### Creating a Sample Test
 
-First, add FluentAssertions (you could use basic Asserts or any other assertion library):
+First, add Shouldly (you could use basic Asserts or any other assertion library):
 
 ```csharp
-dotnet add package FluentAssertions
+dotnet add package Shouldly
 ```
 
 Create a sample test class named `ConventionTests.cs`:
@@ -93,26 +93,26 @@ Create a sample test class named `ConventionTests.cs`:
 ```csharp
 namespace ConventionTest_;
 
-using FluentAssertions;
+using Shouldly;
 using TimeWarp.Fixie;
 
 [TestTag(TestTags.Fast)]
 public class SimpleNoApplicationTest_Should_
 {
-    public static void AlwaysPass() => true.Should().BeTrue();
+    public static void AlwaysPass() => true.ShouldBeTrue();
 
     [Skip("Demonstrates skip attribute")]
-    public static void SkipExample() => true.Should().BeFalse();
+    public static void SkipExample() => true.ShouldBeFalse();
 
     [TestTag(TestTags.Fast)]
-    public static void TagExample() => true.Should().BeTrue();
+    public static void TagExample() => true.ShouldBeTrue();
 
     [Input(5, 3, 2)]
     [Input(8, 5, 3)]
     public static void Subtract(int aX, int aY, int aExpectedDifference)
     {
         int result = aX - aY;
-        result.Should().Be(aExpectedDifference);
+        result.ShouldBe(aExpectedDifference);
     }
 }
 ```
