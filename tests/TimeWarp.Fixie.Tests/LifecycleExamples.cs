@@ -1,12 +1,12 @@
 ﻿namespace ConventionTest_;
 
-using FluentAssertions;
+using Shouldly;
 using System;
 using TimeWarp.Fixie;
 
 public class LifecycleExamples
 {
-  public static void AlwaysPass() => true.Should().BeTrue();
+  public static void AlwaysPass() => true.ShouldBeTrue();
 
   [Input(5, 3, 2)]
   [Input(8, 5, 3)]
@@ -14,7 +14,7 @@ public class LifecycleExamples
   {
     // Will run lifecycles around each Input
     int result = aX - aY;
-    result.Should().Be(aExpectedDifference);
+    result.ShouldBe(aExpectedDifference);
   }
 
   public static void Setup() => Console.WriteLine("Sample Setup");

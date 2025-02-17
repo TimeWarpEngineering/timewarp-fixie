@@ -1,13 +1,13 @@
 <Project>
   <PropertyGroup>
-    <Version>2.0.0+8.0.303</Version>
+    <Version>3.0.0+9.0.200</Version>
     <EnablePreviewFeatures>false</EnablePreviewFeatures>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <Nullable>enable</Nullable>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
 </Project>

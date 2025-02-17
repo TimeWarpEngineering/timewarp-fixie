@@ -130,9 +130,12 @@ public sealed class TestExecution : IExecution
 
   private static async Task TryLifecycleMethod(object instance, TestClass testClass, string methodName)
   {
-    if (instance is null) { throw new ArgumentNullException(nameof(instance)); }
+    ArgumentNullException.ThrowIfNull(instance);
 
+#pragma warning disable IL2075 // 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.PublicMethods' in call to 'System.Type.GetMethod(string)'. The return value of method 'Fixie.TestClass.Type.get' does not have matching annotations.
     MethodInfo? methodInfo = testClass.Type.GetMethod(methodName);
+#pragma warning restore IL2075
+
     if (methodInfo is not null)
     {
       Console.WriteLine($"==== Run Lifecycle method: {methodName} ====");

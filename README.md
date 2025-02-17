@@ -80,29 +80,6 @@ class TestingConvention : TimeWarp.Fixie.TestingConvention { }
 
 This will use the `TimeWarp.Fixie` convention.
 
-### Configuring Services for the Execution Phase
-
-To customize the services used in the execution phase, inherit from `TestingConvention` and override the service configuration:
-
-```csharp
-namespace TimeWarp.Architecture.Testing;
-
-public class TimeWarpTestingConvention : TestingConvention
-{
-    public TimeWarpTestingConvention() : base(ConfigureAdditionalServicesCallback) { }
-
-    private static void ConfigureAdditionalServicesCallback(ServiceCollection serviceCollection)
-    {
-        Console.WriteLine("ConfigureAdditionalServices");
-        serviceCollection
-            .AddSingleton<WebTestServerApplication>()
-            .AddSingleton<ApiTestServerApplication>()
-            .AddSingleton<SpaTestApplication<YarpTestServerApplication, TimeWarp.Architecture.Yarp.Server.Program>>()
-            .AddSingleton<YarpTestServerApplication>();
-    }
-}
-```
-
 ### Creating a Sample Test
 
 First, add FluentAssertions (you could use basic Asserts or any other assertion library):
@@ -151,6 +128,29 @@ dotnet fixie
 ### Dependency Injection
 
 Tests are instantiated from the dependency injection container set up for tests, so you can use the same pattern for testing as for production apps.
+
+### Configuring Services for the Execution Phase
+
+To customize the services used in the execution phase, inherit from `TestingConvention` and override the service configuration:
+
+```csharp
+namespace TimeWarp.Architecture.Testing;
+
+public class TimeWarpTestingConvention : TestingConvention
+{
+    public TimeWarpTestingConvention() : base(ConfigureAdditionalServicesCallback) { }
+
+    private static void ConfigureAdditionalServicesCallback(ServiceCollection serviceCollection)
+    {
+        Console.WriteLine("ConfigureAdditionalServices");
+        serviceCollection
+            .AddSingleton<WebTestServerApplication>()
+            .AddSingleton<ApiTestServerApplication>()
+            .AddSingleton<SpaTestApplication<YarpTestServerApplication, TimeWarp.Architecture.Yarp.Server.Program>>()
+            .AddSingleton<YarpTestServerApplication>();
+    }
+}
+```
 
 ### No Need to Decorate Test Methods with [Test] Attributes
 
