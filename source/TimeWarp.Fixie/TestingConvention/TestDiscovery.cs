@@ -50,7 +50,8 @@ public sealed class TestDiscovery : IDiscovery
     methodInfo =>
       !methodInfo.IsSpecialName &&
       methodInfo.Name != TestingConvention.SetupLifecycleMethodName &&
-      methodInfo.Name != TestingConvention.CleanupLifecycleMethodName;
+      methodInfo.Name != TestingConvention.CleanupLifecycleMethodName &&
+      methodInfo.Name != TestingConvention.ConfigureServicesMethodName;
 
   private Func<MethodInfo, bool> TagMethodFilter() =>
     methodInfo =>

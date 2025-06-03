@@ -14,11 +14,11 @@ Implement support for class-specific static `ConfigureServices` method in TimeWa
 
 ## Implementation Tasks
 
-- [ ] Modify [`RegisterTests`](source/TimeWarp.Fixie/TestingConvention/TestExecution.cs:119) method to scan for and invoke `ConfigureServices` on test classes
-- [ ] Add reflection logic similar to [`TryLifecycleMethod`](source/TimeWarp.Fixie/TestingConvention/TestExecution.cs:131) pattern
-- [ ] Add constant for method name (similar to [`SetupLifecycleMethodName`](source/TimeWarp.Fixie/TestingConvention/TestingConvention.cs:16))
-- [ ] Create integration tests
-- [ ] Update README.md with feature documentation and examples
+- [x] Modify [`RegisterTests`](source/TimeWarp.Fixie/TestingConvention/TestExecution.cs:119) method to scan for and invoke `ConfigureServices` on test classes
+- [x] Add reflection logic similar to [`TryLifecycleMethod`](source/TimeWarp.Fixie/TestingConvention/TestExecution.cs:131) pattern
+- [x] Add constant for method name (similar to [`SetupLifecycleMethodName`](source/TimeWarp.Fixie/TestingConvention/TestingConvention.cs:16))
+- [x] Create integration tests
+- [x] Update README.md with feature documentation and examples
 
 ## Example Usage
 

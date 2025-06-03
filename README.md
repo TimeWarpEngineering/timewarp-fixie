@@ -152,6 +152,56 @@ public class TimeWarpTestingConvention : TestingConvention
 }
 ```
 
+### Class-Specific Service Configuration
+
+You can configure services specific to individual test classes by adding a static `ConfigureServices` method to your test class. This allows different test classes to use different mock implementations:
+
+```csharp
+public class UserServiceTests
+{
+    private readonly IUserRepository UserRepository;
+
+    public UserServiceTests(IUserRepository userRepository)
+    {
+        UserRepository = userRepository;
+    }
+
+    // Configure services specific to this test class
+    public static void ConfigureServices(IServiceCollection services)
+    {
+        services.AddScoped<IUserRepository, MockUserRepository>();
+        services.AddScoped<IEmailService, MockEmailService>();
+    }
+
+    public void Should_Create_User()
+    {
+        // Test implementation using MockUserRepository
+    }
+}
+
+public class OrderServiceTests
+{
+    private readonly IUserRepository UserRepository;
+
+    public OrderServiceTests(IUserRepository userRepository)
+    {
+        UserRepository = userRepository;
+    }
+
+    // Different mocks for this test class
+    public static void ConfigureServices(IServiceCollection services)
+    {
+        services.AddScoped<IUserRepository, FakeUserRepository>();
+        services.AddScoped<IPaymentService, MockPaymentService>();
+    }
+
+    public void Should_Process_Order()
+    {
+        // Test implementation using FakeUserRepository
+    }
+}
+```
+
 ### No Need to Decorate Test Methods with [Test] Attributes
 
 Public methods are test cases by convention:
@@ -239,8 +289,31 @@ public class NotTest : Attribute { }
 
 ### Filtering Tests by Name
 
-From Fixie's [docs](https://github.com/fixie/fixie/wiki/Command-Line-Arguments#filtering-with---tests):
+From Fixie's [docs](https://github.com/fixie/fixie/wiki/dotnet-fixie#filtering-with---tests):
 
 The optional argument `--tests` (abbreviated `-t`) lets you specify which tests to run.
 
-A full test name match
+**Run a single test by full name:**
+```console
+dotnet fixie --tests Full.Namespace.MyTestClass.MyTestMethod
+```
+
+**Run tests with implicit wildcard (most test name prefixes are similar):**
+```console
+dotnet fixie --tests MyTestClass.MyTestMethod
+```
+
+**Run tests with explicit wildcard (`*` matches any sequence of zero or more characters):**
+```console
+dotnet fixie --tests MyTest*.TestMethod*
+```
+
+**Run an entire test class:**
+```console
+dotnet fixie --tests MyTestClass.*
+```
+
+**Leveraging PascalCase naming convention for partial matches:**
+```console
+dotnet fixie --tests MyTestClass.Should_Create_User
+```
