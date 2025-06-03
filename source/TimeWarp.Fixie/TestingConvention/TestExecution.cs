@@ -46,10 +46,14 @@ public sealed class TestExecution : IExecution
   /// </remarks>
   public async Task Run(TestSuite testSuite)
   {
-    IServiceScopeFactory serviceScopeFactory = ServiceProvider.GetService<IServiceScopeFactory>()!;
     foreach (TestClass testClass in testSuite.TestClasses)
     {
       Console.WriteLine($"==== Executing Cases for the class {testClass.Type.FullName} ====");
+
+      // Create a class-specific service provider for this test class
+      var classServiceProvider = CreateClassServiceProvider(testClass.Type);
+      IServiceScopeFactory serviceScopeFactory = classServiceProvider.GetService<IServiceScopeFactory>()!;
+
       foreach (Test test in testClass.Tests)
       {
         if (test.Has(out SkipAttribute? skip))
@@ -81,9 +85,10 @@ public sealed class TestExecution : IExecution
           await TryLifecycleMethod(instance, testClass, TestingConvention.CleanupLifecycleMethodName);
         }
       }
-    }
 
-    await (serviceScopeFactory as IAsyncDisposable)!.DisposeAsync();
+      await (serviceScopeFactory as IAsyncDisposable)!.DisposeAsync();
+      await classServiceProvider.DisposeAsync();
+    }
   }
 
   /// <summary>
@@ -126,6 +131,51 @@ public sealed class TestExecution : IExecution
         .AsSelf()
         .WithScopedLifetime()
     );
+  }
+
+  /// <summary>
+  /// Creates a class-specific service provider that includes both global services and class-specific services
+  /// </summary>
+  /// <param name="testClassType"></param>
+  /// <returns></returns>
+  private ServiceProvider CreateClassServiceProvider(Type testClassType)
+  {
+    var classServices = new ServiceCollection();
+
+    // Add base services (same as ConfigureTestServices but without RegisterTests)
+    ConfigureAdditionalServices(classServices);
+    classServices.AddSingleton(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+
+    // Register all test classes
+    RegisterTests(classServices);
+
+    // Apply class-specific service configuration
+    TryConfigureServicesMethod(classServices, testClassType);
+
+    return classServices.BuildServiceProvider();
+  }
+
+  /// <summary>
+  /// Attempts to find and invoke a static ConfigureServices method on the given test class
+  /// </summary>
+  /// <param name="serviceCollection"></param>
+  /// <param name="testClass"></param>
+  private static void TryConfigureServicesMethod(IServiceCollection serviceCollection, Type testClass)
+  {
+#pragma warning disable IL2075 // 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.PublicMethods' in call to 'System.Type.GetMethod(string, Type[])'. The parameter 'testClass' of method does not have matching annotations.
+    MethodInfo? methodInfo = testClass.GetMethod(
+      TestingConvention.ConfigureServicesMethodName,
+      BindingFlags.Public | BindingFlags.Static,
+      null,
+      new[] { typeof(IServiceCollection) },
+      null);
+#pragma warning restore IL2075
+
+    if (methodInfo is not null)
+    {
+      Console.WriteLine($"==== Configuring services for test class: {testClass.FullName} ====");
+      methodInfo.Invoke(null, new object[] { serviceCollection });
+    }
   }
 
   private static async Task TryLifecycleMethod(object instance, TestClass testClass, string methodName)

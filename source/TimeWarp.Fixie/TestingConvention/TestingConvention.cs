@@ -15,6 +15,7 @@ public abstract class TestingConvention : ITestProject
 {
   internal const string SetupLifecycleMethodName = "Setup";
   internal const string CleanupLifecycleMethodName = "Cleanup";
+  internal const string ConfigureServicesMethodName = "ConfigureServices";
 
   private readonly ConfigureAdditionalServicesCallback? ConfigureAdditionalServicesCallback;
 
