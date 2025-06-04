@@ -118,7 +118,7 @@ The previous manual [`publish.ps1`](../publish.ps1) script functionality has bee
 3. Verify project builds locally with `dotnet build`
 
 ### Test Failures
-1. Run tests locally with `dotnet test`
+1. Run tests locally with `dotnet fixie`
 2. Check test output for specific failure details
 3. Ensure test dependencies are properly configured
 

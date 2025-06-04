@@ -46,7 +46,7 @@ try {
     
     # Test
     Write-Host "Running tests..." -ForegroundColor Yellow
-    dotnet test --no-build --configuration $Configuration --verbosity normal
+    dotnet fixie ./tests/TimeWarp.Fixie.Tests --configuration $Configuration --no-build
     if ($LASTEXITCODE -ne 0) { throw "Tests failed" }
     
     # Create output directory

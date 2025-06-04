@@ -22,6 +22,17 @@
     <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
+  <!-- Exclude test host files from NuGet package to avoid NU5100 warnings -->
+  <ItemGroup>
+    <Content Remove="**/testhost.dll" />
+    <None Remove="**/testhost.dll" />
+  </ItemGroup>
+
+  <!-- Suppress NU5100 warnings for testhost.dll files that come from Fixie.TestAdapter -->
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);NU5100</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Fixie" />
     <PackageReference Include="Fixie.TestAdapter" />
