@@ -1,0 +1,60 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  release:
+    types: [ published ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    name: Build and Test
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Run build and test
+      shell: pwsh
+      run: ./CI-CD/ci-cd.ps1 -Phase build
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-packages
+        path: ./artifacts/*.nupkg
+
+  publish-nuget:
+    runs-on: ubuntu-latest
+    name: Publish to NuGet
+    needs: build-and-test
+    if: github.event_name == 'release' && github.event.action == 'published'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: nuget-packages
+        path: ./artifacts
+
+    - name: Publish to NuGet
+      shell: pwsh
+      run: ./CI-CD/ci-cd.ps1 -Phase publish -PublishToNuGet $true
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

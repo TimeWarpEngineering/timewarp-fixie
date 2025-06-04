@@ -162,14 +162,14 @@ public sealed class TestExecution : IExecution
   /// <param name="testClass"></param>
   private static void TryConfigureServicesMethod(IServiceCollection serviceCollection, Type testClass)
   {
-#pragma warning disable IL2075 // 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.PublicMethods' in call to 'System.Type.GetMethod(string, Type[])'. The parameter 'testClass' of method does not have matching annotations.
+#pragma warning disable IL2070, IL2075 // 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.PublicMethods' in call to 'System.Type.GetMethod'. The parameter 'testClass' of method does not have matching annotations.
     MethodInfo? methodInfo = testClass.GetMethod(
       TestingConvention.ConfigureServicesMethodName,
       BindingFlags.Public | BindingFlags.Static,
       null,
       new[] { typeof(IServiceCollection) },
       null);
-#pragma warning restore IL2075
+#pragma warning restore IL2070, IL2075
 
     if (methodInfo is not null)
     {
