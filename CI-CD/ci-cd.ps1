@@ -58,13 +58,12 @@ try {
         Write-PhaseHeader "PUBLISH PHASE"
         
         if ([string]::IsNullOrWhiteSpace($NuGetApiKey)) {
-            Write-Warning "NuGet API key not provided. Skipping publish phase."
-            Write-Host "To publish, provide the API key via -NuGetApiKey parameter or NUGET_API_KEY environment variable." -ForegroundColor Yellow
-        } else {
-            & ./publish-nuget.ps1 -PackagePath $ArtifactsPath -NuGetApiKey $NuGetApiKey
-            if ($LASTEXITCODE -ne 0) {
-                throw "Publish phase failed"
-            }
+            throw "NuGet API key is required for publishing. Please provide it via -NuGetApiKey parameter or NUGET_API_KEY environment variable."
+        }
+        
+        & ./publish-nuget.ps1 -PackagePath $ArtifactsPath -NuGetApiKey $NuGetApiKey
+        if ($LASTEXITCODE -ne 0) {
+            throw "Publish phase failed"
         }
     } elseif ($Phase -eq "publish" -or $Phase -eq "all") {
         Write-Host "Publish phase skipped (PublishToNuGet = $PublishToNuGet)" -ForegroundColor Yellow
