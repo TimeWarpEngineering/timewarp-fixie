@@ -44,6 +44,9 @@ jobs:
     name: Publish to NuGet
     needs: build-and-test
     if: (github.event_name == 'release' && github.event.action == 'published') || (github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget == true)
+    permissions:
+      contents: read
+      id-token: write  # Required for NuGet Trusted Publishing (OIDC)
 
     steps:
     - name: Checkout code
@@ -60,8 +63,14 @@ jobs:
         name: nuget-packages
         path: ./artifacts
 
+    - name: NuGet login (OIDC Trusted Publishing)
+      id: nuget-login
+      uses: nuget/login@v1
+      with:
+        user: TimeWarp.Enterprises
+
     - name: Publish to NuGet
       shell: pwsh
       run: ./CI-CD/ci-cd.ps1 -Phase publish -PublishToNuGet $true
       env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
