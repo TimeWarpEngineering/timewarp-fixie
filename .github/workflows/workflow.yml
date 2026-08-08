@@ -10,11 +10,12 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Pipeline mode. merge = build and test only (default). release = break-glass publish; also requires confirm.'
+        description: 'Pipeline mode. merge = build and test only (default). release = break-glass publish; also requires confirm. probe = trusted-publishing check only (OIDC login, no build, no publish).'
         type: choice
         options:
           - merge
           - release
+          - probe
         default: merge
       confirm:
         description: 'Break-glass guard: type the word release to confirm publishing when mode is release. Ignored otherwise.'
@@ -42,10 +43,12 @@ jobs:
         exit 1
 
     - name: Run build and test
+      if: github.event_name != 'workflow_dispatch' || inputs.mode != 'probe'
       shell: pwsh
       run: ./CI-CD/ci-cd.ps1 -Phase build
 
     - name: Upload artifacts
+      if: github.event_name != 'workflow_dispatch' || inputs.mode != 'probe'
       uses: actions/upload-artifact@v4
       with:
         name: nuget-packages
@@ -55,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Publish to NuGet
     needs: build-and-test
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'release' && inputs.confirm == 'release')
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'release' && inputs.confirm == 'release') || (github.event_name == 'workflow_dispatch' && inputs.mode == 'probe')
     permissions:
       contents: read
       id-token: write  # Required for NuGet Trusted Publishing (OIDC)
@@ -70,6 +73,7 @@ jobs:
         dotnet-version: '9.0.x'
 
     - name: Download artifacts
+      if: github.event_name != 'workflow_dispatch' || inputs.mode != 'probe'
       uses: actions/download-artifact@v4
       with:
         name: nuget-packages
@@ -81,7 +85,12 @@ jobs:
       with:
         user: TimeWarp.Enterprises
 
+    - name: Trusted publishing probe result
+      if: github.event_name == 'workflow_dispatch' && inputs.mode == 'probe'
+      run: echo "Trusted publishing OK — OIDC exchange succeeded for this repo + workflow.yml. (A failure of the NuGet login step above means the policy is missing or misconfigured on NuGet.org.)"
+
     - name: Publish to NuGet
+      if: github.event_name != 'workflow_dispatch' || inputs.mode != 'probe'
       shell: pwsh
       run: ./CI-CD/ci-cd.ps1 -Phase publish -PublishToNuGet $true
       env:
