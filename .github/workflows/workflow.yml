@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD
 
 on:
   push:
@@ -9,11 +9,17 @@ on:
     types: [ published ]
   workflow_dispatch:
     inputs:
-      publish_to_nuget:
-        description: 'Publish to NuGet.org'
-        required: false
-        default: false
-        type: boolean
+      mode:
+        description: 'Pipeline mode. merge = build and test only (default). release = break-glass publish; also requires confirm.'
+        type: choice
+        options:
+          - merge
+          - release
+        default: merge
+      confirm:
+        description: 'Break-glass guard: type the word release to confirm publishing when mode is release. Ignored otherwise.'
+        type: string
+        default: ''
 
 jobs:
   build-and-test:
@@ -29,6 +35,12 @@ jobs:
       with:
         dotnet-version: '9.0.x'
 
+    - name: Validate break-glass confirmation
+      if: github.event_name == 'workflow_dispatch' && inputs.mode == 'release' && inputs.confirm != 'release'
+      run: |
+        echo "::error::mode=release requires confirm=release. Refusing to run a break-glass release."
+        exit 1
+
     - name: Run build and test
       shell: pwsh
       run: ./CI-CD/ci-cd.ps1 -Phase build
@@ -43,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Publish to NuGet
     needs: build-and-test
-    if: (github.event_name == 'release' && github.event.action == 'published') || (github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget == true)
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'release' && inputs.confirm == 'release')
     permissions:
       contents: read
       id-token: write  # Required for NuGet Trusted Publishing (OIDC)
