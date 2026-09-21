@@ -43,7 +43,7 @@ Removed the leftover parent-template sync drivers so this repo can no longer spa
 - No `commit-file-via-api.ps1` (only mentioned as a comment in the deleted script)
 
 **Cleanup PR**
-- URL: pending (filled after open)
+- URL: https://github.com/TimeWarpEngineering/timewarp-fixie/pull/15 (draft, left open; do not merge from this task)
 
 **Stale sync PRs**
 - None open. Both historical sync PRs were already closed on 2025-07-07:
